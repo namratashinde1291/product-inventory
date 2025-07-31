@@ -24,4 +24,18 @@ const getProductById = async (req,res) => {
     }
 };
 
-module.exports = {getProducts, getProductById};
+const updateProduct = async(req,res) => {
+    const {id} = req.params;
+    const {name,price,stock,category_id} = req.body;
+    try{
+        const result = await db.query("update products set name =$1, price=$2, stock=$3,category_id=$4 where id=$5 returning *",[name,price,stock,category_id,id]);
+        if(result.rows.length === 0)
+            return res.status(404).json({error:'Product not updated'});
+            res.json(result.rows[0]);
+    }
+    catch(err){
+        res.status(500).json({error:err.message});
+    }
+};
+
+module.exports = {getProducts, getProductById, updateProduct};
