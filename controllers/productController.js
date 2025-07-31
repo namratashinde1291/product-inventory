@@ -38,4 +38,26 @@ const updateProduct = async(req,res) => {
     }
 };
 
-module.exports = {getProducts, getProductById, updateProduct};
+const createProduct = async (req,res) =>{
+    const {name, price, stock, category_id} =req.body;
+    try{
+        const result = await db.query("insert into products (name, price, stock, category_id) values ($1,$2,$3,$4) returning *",[name, price, stock, category_id]);
+         res.status(201).json(result.rows[0]);
+    }
+    catch(err){
+        res.status(500).json({ error: err.message });
+    }
+};
+
+function deleteProduct(req,res){
+    const {id} = req.params;
+    try{
+        const result = db.query("update products set active=false where id = $1",[id]);
+        res.json({ message: "Product marked as inactive" });
+    }
+    catch(err){
+        res.status(500).json({ error: err.message });
+    }
+}
+
+module.exports = {getProducts, getProductById, updateProduct, createProduct, deleteProduct};
