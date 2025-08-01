@@ -1,3 +1,4 @@
+const { error } = require('console');
 const db = require('../models/db');
 
 const getProducts = async (req,res) => {
@@ -49,15 +50,26 @@ const createProduct = async (req,res) =>{
     }
 };
 
-function deleteProduct(req,res){
+const deleteProduct = async(req,res) => {
     const {id} = req.params;
     try{
-        const result = db.query("update products set active=false where id = $1",[id]);
+        const result = await db.query("update products set active=false where id = $1",[id]);
         res.json({ message: "Product marked as inactive" });
     }
     catch(err){
         res.status(500).json({ error: err.message });
     }
+};
+
+const restoreProduct = async(req,res) => {
+    const { id } = req.params;
+    try{
+        const result = await db.query("update products set active=true where id = $1",[id]);
+        res.status(200).json({data:result.rows[0],message:"product restored successfully"});
+    }
+    catch(err){
+        res.status(500).json({error:err.message});
+    }
 }
 
-module.exports = {getProducts, getProductById, updateProduct, createProduct, deleteProduct};
+module.exports = {getProducts, getProductById, updateProduct, createProduct, deleteProduct, restoreProduct};
